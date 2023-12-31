@@ -14,7 +14,7 @@ const router = useRouter()
 import { dialog } from 'mdui/functions/dialog.js';
 
 var markdown_html = ref('')
-var page_info = ref({})
+var page_info = ref()
 var site_info = ref(
   {
     "site_title": "获取中...",
@@ -28,6 +28,7 @@ fetch(doc_host + '/?file=/info.json')
   .then(response => response.json())
   .then(data => {
     site_info.value = data
+    document.title = site_info.value.site_title
   })
 
 function update_page() {// 更新页面
@@ -49,7 +50,7 @@ function update_page() {// 更新页面
       console.log(data)
       page_info.value = JSON.parse(data)
       if (page_info.value.exist == false) {
-        page_info.value.title = '404'
+        page_info.value.title = ''
       }
       is_get = true
     })
@@ -74,7 +75,6 @@ function alert_info() {
 }
 
 update_page()
-console.log(site_info.value.site_title)
 
 </script>
 
@@ -82,8 +82,9 @@ console.log(site_info.value.site_title)
   <mdui-top-app-bar style="position: relative;">
     <mdui-button-icon icon="menu"></mdui-button-icon>
     <mdui-top-app-bar-title @click="back_home">
-      <span>{{ site_info.site_title }}</span>
-      <span v-if="page_info.exist"> - {{ page_info.title }}</span>
+      <span v-if="page_info.title.site_title || !page_info.exist">{{ site_info.site_title }}</span>
+      <span v-if="page_info.title.site_title && page_info.exist"> - </span>
+      <span v-if="page_info.exist">{{ page_info.title.text }}</span>
     </mdui-top-app-bar-title>
     <div style="flex-grow: 1"></div>
     <mdui-button-icon icon="info" @click="alert_info"></mdui-button-icon>
