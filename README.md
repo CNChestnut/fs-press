@@ -8,13 +8,13 @@
 
 - 前端部分
 
-    1. 将 [Release]('https://github.com/CNChestnut/fs-press/realease') 中的压缩包解压到网站根目录。
+    1. 将 [Release](https://github.com/CNChestnut/fs-press/realease) 中的压缩包解压到网站根目录。
 
     2. 将所有访问指向 `index.html`
 
 - 后端部分
 
-    1. 将 [Release]('https://github.com/CNChestnut/fs-press-server/') 部署到服务器。
+    1. 将 [Release](https://github.com/CNChestnut/fs-press-server/) 部署到服务器。
 
     2. 使用 `npm run start` 运行项目
 
@@ -32,4 +32,4 @@
 
 - 大功告成 
 
-    3. 当访问时，应用会自动 `fetch 127.0.0.1:62710` ，你可
+当访问时，应用会自动 `fetch 127.0.0.1:62710` ，你可在 `/assets/` 中的 `JavaScript` 文件中搜索 `127.0.0.1:62700` 并修改。
