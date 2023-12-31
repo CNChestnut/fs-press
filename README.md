@@ -8,13 +8,13 @@
 
 - 前端部分
 
-    1. 将 [Release](https://github.com/CNChestnut/fs-press/realease) 中的压缩包解压到网站根目录。
+    1. 将 [Release](https://github.com/CNChestnut/fs-press/realeases) 中的压缩包解压到网站根目录。
 
     2. 将所有访问指向 `index.html`
 
 - 后端部分
 
-    1. 将 [Release](https://github.com/CNChestnut/fs-press-server/) 部署到服务器。
+    1. 将 [服务端](https://github.com/CNChestnut/fs-press-server/) 部署到服务器。
 
     2. 使用 `npm run start` 运行项目
 
