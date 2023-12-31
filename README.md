@@ -8,7 +8,7 @@
 
 - 前端部分
 
-    1. 将 [Release](https://github.com/CNChestnut/fs-press/realeases) 中的压缩包解压到网站根目录。
+    1. 将 [Release](https://github.com/CNChestnut/fs-press/releases) 中的压缩包解压到网站根目录。
 
     2. 将所有访问指向 `index.html`
 
