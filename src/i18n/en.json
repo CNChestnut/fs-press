@@ -5,6 +5,8 @@
     },
     "home": {
         "about": "About {site_title}",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "file_from":"The Markdown file being referenced is from:",
+        "remote_file":"You are currently opening a remote file! The Url is:"
     }
 }

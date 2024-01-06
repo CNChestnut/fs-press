@@ -5,6 +5,8 @@
     },
     "home":{
         "about":"关于 {site_title}",
-        "loading":"加载中..."
+        "loading":"加载中...",
+        "file_from":"当前引用的 Markdown 文件来自：",
+        "remote_file":"你当前正在打开远程文件！URL为："
     }
 }

@@ -4,7 +4,9 @@ import { ref } from 'vue'
 import 'github-markdown-css/github-markdown-light.css'
 
 import markdownIt from 'markdown-it'
+import markdownItMeta from 'markdown-it-meta'
 const md = new markdownIt()
+md.use(markdownItMeta)
 
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
@@ -12,9 +14,11 @@ const router = useRouter()
 
 import i18n from '@/i18n' // 引入i8n实例
 
-import { dialog } from 'mdui/functions/dialog.js';
+import HtmlDialog from '../components/html-dialog.vue'
+const dialog_is_open = ref(false)
 
 import server_config from '../app.config.json'
+import { snackbar } from 'mdui';
 
 var markdown_html = ref('')
 var page_info = ref()
@@ -24,6 +28,7 @@ var site_info = ref(
     "site_description": i18n.global.t('home.loading')
   }
 )
+var fetch_path = ref('')
 var is_get = ref(false)// 是否已经获取到文档
 var server_host = server_config.server_host
 
@@ -34,28 +39,43 @@ fetch(server_host + '/?file=/info.json&language=' + i18n.global.locale)
     document.title = site_info.value.site_title
   })
 
-function update_page() {// 更新页面
-  markdown_html.value = ''
-  page_info.value = { "title": i18n.global.t('home.loading') }
-  is_get = false
-  var fetch_path = server_host + '/?file=' + route.path + '/index.md&language=' + i18n.global.locale
-  fetch(fetch_path)
+function fetch_markdown(file_path, is_remote = false) {
+  md.meta = {}
+  if (is_remote) {
+    fetch_path.value = file_path
+  } else {
+    fetch_path.value = server_host + '/?file=' + file_path + '/index.md&language=' + i18n.global.locale
+  }
+  console.log(fetch_path.value)
+  fetch(fetch_path.value)
     .then(response => response.text())
     .then(data => {
       markdown_html.value = md.render(data)
       is_get = true
-    })
-  var fetch_path = server_host + '/?file=' + route.path + '/index.json&language=' + i18n.global.locale
-  console.log(fetch_path)
-  fetch(fetch_path)
-    .then(response => response.text())
-    .then(data => {
-      page_info.value = JSON.parse(data)
-      if (page_info.value.exist == false) {
-        page_info.value.title = ''
+      if (Object.keys(md.meta).length) {
+        page_info.value = Object.assign(page_info.value, md.meta)
+        page_info.value.exist = true
       }
-      is_get = true
+      if (md.meta.hasOwnProperty('remote')) {
+        snackbar({
+          message: i18n.global.t('home.remote_file') + md.meta.remote.url 
+        })
+        fetch_markdown(md.meta.remote.url, true)
+      }
     })
+}
+
+function update_page() {// 更新页面
+  markdown_html.value = ''
+  page_info.value = {
+    "title": {
+      "text": i18n.global.t('home.loading'),
+      "keepSiteTitle": true
+    },
+    "remote": false
+  }
+  is_get = false
+  fetch_markdown(route.path)
 }
 
 function back_home() {
@@ -65,15 +85,7 @@ function back_home() {
 }
 
 function alert_info() {
-  dialog({
-    headline: i18n.global.t('home.about', { site_title: site_info.value.site_title }),
-    description: site_info.value.site_description,
-    actions: [
-      {
-        text: "OK"
-      }
-    ]
-  })
+  dialog_is_open.value = true
 }
 
 function change_language(code) {
@@ -87,11 +99,23 @@ update_page()
 
 <template>
   <div>
+    <HtmlDialog :open="dialog_is_open">
+      <div class="mdui-prose">
+        <h3>{{ $t('home.about') + site_info.site_title }}</h3>
+        <p>{{ site_info.site_description }}</p>
+        <hr>
+        <p>
+          {{ $t('home.file_from') }}<br><code>{{ fetch_path }}</code>
+        </p>
+      </div>
+      <mdui-button slot="action" @click="dialog_is_open = false">OK</mdui-button>
+    </HtmlDialog>
+
     <mdui-top-app-bar style="position: relative;">
       <mdui-top-app-bar-title @click="back_home">
-        <span v-if="page_info.title.site_title || !page_info.exist">{{ site_info.site_title }}</span>
-        <span v-if="page_info.title.site_title && page_info.exist"> - </span>
-        <span v-if="page_info.exist">{{ page_info.title.text }}</span>
+        <span v-if="page_info.title.keepSiteTitle || !page_info.hasOwnProperty('title')">{{ site_info.site_title }}</span>
+        <span v-if="page_info.title.keepSiteTitle && page_info.hasOwnProperty('title')"> - </span>
+        <span v-if="page_info.hasOwnProperty('title')">{{ page_info.title.text }}</span>
       </mdui-top-app-bar-title>
       <div style="flex-grow: 1"></div>
 
@@ -118,7 +142,6 @@ update_page()
 </template>
 
 <style>
-
 mdui-top-app-bar * {
   cursor: pointer;
 }
@@ -126,6 +149,6 @@ mdui-top-app-bar * {
 .markdown-body {
   box-sizing: border-box;
   margin: 10px auto;
-  width: min(100%, 1024px);
+  width: min(80vw, 1024px);
 }
 </style>
