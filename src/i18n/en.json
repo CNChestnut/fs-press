@@ -1,0 +1,10 @@
+{
+    "language": {
+        "name": "English",
+        "code": "en"
+    },
+    "home": {
+        "about": "About {site_title}",
+        "loading": "Loading..."
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "language":{
+        "name":"中文简体",
+        "code":"zh-CN"
+    },
+    "home":{
+        "about":"关于 {site_title}",
+        "loading":"加载中..."
+    }
+}

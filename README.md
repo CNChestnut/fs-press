@@ -1,10 +1,8 @@
 # openNUT FS Press
 
-`fs-press-server` 兼容性版本：`1.0.1`
+`fs-press-server` 兼容性版本：`1.1.0`
 
 这是一个基于文件系统的动态网站生成器。
-
-半成品
 
 ## 怎么部署
 
