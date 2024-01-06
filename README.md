@@ -1,6 +1,6 @@
 # openNUT FS Press
 
-版本:`1.2.0`
+版本:`1.2.1`
 
 `fs-press-server` 兼容性版本：`2.0.0`
 
