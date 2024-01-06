@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-import 'github-markdown-css/github-markdown.css'
+import 'github-markdown-css/github-markdown-light.css'
 
 import markdownIt from 'markdown-it'
 const md = new markdownIt()
