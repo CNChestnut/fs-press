@@ -29,8 +29,7 @@ if (is_dark_mode.value) {
 const is_dev_mode = process.env.NODE_ENV === 'development'
 
 import server_config from '../app.config.json'
-import { getTheme, setTheme, snackbar } from 'mdui';
-console.log(getTheme())
+import { setTheme, snackbar } from 'mdui';
 var markdown_html = ref('')
 var page_info = ref()
 var site_info = ref(
@@ -42,6 +41,9 @@ var site_info = ref(
 var fetch_path = ref('')
 var is_get = ref(false)// 是否已经获取到文档
 var server_host = ref(server_config.server_host)
+if(route.query.hasOwnProperty('server_host')) {
+  server_host.value = route.query.server_host
+}
 
 fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale)
   .then(response => response.json())
