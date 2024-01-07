@@ -3,7 +3,7 @@
 
 [English Version](./docs/README-en.md)
 
-版本:`1.3.0`
+版本:`1.4.0`
 
 `fs-press-server` 兼容性版本：`2.1.0`
 

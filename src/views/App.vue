@@ -1,8 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 
-import 'github-markdown-css/github-markdown-light.css'
-
 import markdownIt from 'markdown-it'
 import markdownItMeta from 'markdown-it-meta'
 const md = new markdownIt()
@@ -17,9 +15,19 @@ import i18n from '@/i18n' // 引入i8n实例
 import HtmlDialog from '../components/html-dialog.vue'
 const dialog_is_open = ref(false)
 
-import server_config from '../app.config.json'
-import { snackbar } from 'mdui';
+const is_dark_mode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
+const markdown_css_dark = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-dark.min.css'
+const markdown_css = ref(is_dark_mode.value ? markdown_css_dark : markdown_css_light)
+if (is_dark_mode.value) {
+  setTheme('dark')
+} else {
+  setTheme('light')
+}
 
+import server_config from '../app.config.json'
+import { getTheme, setTheme, snackbar } from 'mdui';
+console.log(getTheme())
 var markdown_html = ref('')
 var page_info = ref()
 var site_info = ref(
@@ -58,7 +66,7 @@ function fetch_markdown(file_path, is_remote = false) {
       }
       if (md.meta.hasOwnProperty('remote')) {
         snackbar({
-          message: i18n.global.t('home.remote_file') + md.meta.remote.url 
+          message: i18n.global.t('home.remote_file') + md.meta.remote.url
         })
         fetch_markdown(md.meta.remote.url, true)
       }
@@ -93,6 +101,17 @@ function change_language(code) {
   update_page()
 }
 
+function change_dark_mode(){
+  is_dark_mode.value = !is_dark_mode.value
+  if (is_dark_mode.value) {
+    markdown_css.value = markdown_css_dark
+    setTheme('dark')
+  } else {
+    markdown_css.value = markdown_css_light
+    setTheme('light')
+  }
+}
+
 update_page()
 
 </script>
@@ -112,6 +131,9 @@ update_page()
     </HtmlDialog>
 
     <mdui-top-app-bar style="position: relative;">
+
+      <mdui-button-icon icon="home" @click="back_home"></mdui-button-icon>
+
       <mdui-top-app-bar-title @click="back_home">
         <span v-if="page_info.title.keepSiteTitle || !page_info.hasOwnProperty('title')">{{ site_info.site_title }}</span>
         <span v-if="page_info.title.keepSiteTitle && page_info.hasOwnProperty('title')"> - </span>
@@ -127,16 +149,18 @@ update_page()
           </mdui-menu-item>
         </mdui-menu>
       </mdui-dropdown>
+      <mdui-button-icon :icon="is_dark_mode?'dark_mode':'light_mode'" @click="change_dark_mode()"></mdui-button-icon>
       <mdui-button-icon icon="info" @click="alert_info"></mdui-button-icon>
 
     </mdui-top-app-bar>
-    <div class="markdown-body" style="background-color: transparent;">
-      <!--Github-Markdown-CSS 自带 background-color: #fff; 会导致背景色不透明-->
+    <div id="markdown-body">
       <div v-if="!is_get"><!--如果还没有获取到文档-->
         <mdui-circular-progress></mdui-circular-progress>
         <!--正在获取文档...-->
       </div>
-      <div v-html="markdown_html"></div>
+      <div v-html="markdown_html" class="markdown-body" style="background-color:transparent"></div>
+      <!--Github-Markdown-CSS 自带 background-color: #fff; 会导致背景色不透明-->
+      <link rel="stylesheet" :href="markdown_css">
     </div>
   </div>
 </template>
@@ -146,7 +170,7 @@ mdui-top-app-bar * {
   cursor: pointer;
 }
 
-.markdown-body {
+#markdown-body {
   box-sizing: border-box;
   margin: 10px auto;
   width: min(80vw, 1024px);
