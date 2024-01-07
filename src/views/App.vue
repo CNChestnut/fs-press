@@ -13,7 +13,8 @@ const router = useRouter()
 import i18n from '@/i18n' // 引入i8n实例
 
 import HtmlDialog from '../components/html-dialog.vue'
-const dialog_is_open = ref(false)
+const dialog_about_is_open = ref(false)
+const dialog_dev_is_open = ref(false)
 
 const is_dark_mode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
@@ -24,6 +25,8 @@ if (is_dark_mode.value) {
 } else {
   setTheme('light')
 }
+
+const is_dev_mode = process.env.NODE_ENV === 'development'
 
 import server_config from '../app.config.json'
 import { getTheme, setTheme, snackbar } from 'mdui';
@@ -38,9 +41,9 @@ var site_info = ref(
 )
 var fetch_path = ref('')
 var is_get = ref(false)// 是否已经获取到文档
-var server_host = server_config.server_host
+var server_host = ref(server_config.server_host)
 
-fetch(server_host + '/?file=/info.json&language=' + i18n.global.locale)
+fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale)
   .then(response => response.json())
   .then(data => {
     site_info.value = data
@@ -52,7 +55,7 @@ function fetch_markdown(file_path, is_remote = false) {
   if (is_remote) {
     fetch_path.value = file_path
   } else {
-    fetch_path.value = server_host + '/?file=' + file_path + '/index.md&language=' + i18n.global.locale
+    fetch_path.value = server_host.value + '/?file=' + file_path + '/index.md&language=' + i18n.global.locale
   }
   console.log(fetch_path.value)
   fetch(fetch_path.value)
@@ -77,7 +80,7 @@ function update_page() {// 更新页面
   markdown_html.value = ''
   page_info.value = {
     "title": {
-      "text": i18n.global.t('home.loading'),
+      "text": '',
       "keepSiteTitle": true
     },
     "remote": false
@@ -93,7 +96,11 @@ function back_home() {
 }
 
 function alert_info() {
-  dialog_is_open.value = true
+  dialog_about_is_open.value = true
+}
+
+function alert_dev() {
+  dialog_dev_is_open.value = true
 }
 
 function change_language(code) {
@@ -101,7 +108,7 @@ function change_language(code) {
   update_page()
 }
 
-function change_dark_mode(){
+function change_dark_mode() {
   is_dark_mode.value = !is_dark_mode.value
   if (is_dark_mode.value) {
     markdown_css.value = markdown_css_dark
@@ -118,7 +125,7 @@ update_page()
 
 <template>
   <div>
-    <HtmlDialog :open="dialog_is_open">
+    <HtmlDialog :open="dialog_about_is_open">
       <div class="mdui-prose">
         <h3>{{ $t('home.about') + site_info.site_title }}</h3>
         <p>{{ site_info.site_description }}</p>
@@ -127,7 +134,13 @@ update_page()
           {{ $t('home.file_from') }}<br><code>{{ fetch_path }}</code>
         </p>
       </div>
-      <mdui-button slot="action" @click="dialog_is_open = false">OK</mdui-button>
+      <mdui-button slot="action" @click="dialog_about_is_open = false">OK</mdui-button>
+    </HtmlDialog>
+    <HtmlDialog :open="dialog_dev_is_open" v-if="is_dev_mode">
+      <div class="mdui-prose">
+        <input type="text" v-model="server_host" placeholder="server_host">
+      </div>
+      <mdui-button slot="action" @click="dialog_dev_is_open = false;update_page();">OK</mdui-button>
     </HtmlDialog>
 
     <mdui-top-app-bar style="position: relative;">
@@ -136,8 +149,8 @@ update_page()
 
       <mdui-top-app-bar-title @click="back_home">
         <span v-if="page_info.title.keepSiteTitle || !page_info.hasOwnProperty('title')">{{ site_info.site_title }}</span>
-        <span v-if="page_info.title.keepSiteTitle && page_info.hasOwnProperty('title')"> - </span>
-        <span v-if="page_info.hasOwnProperty('title')">{{ page_info.title.text }}</span>
+        <span v-if="page_info.title.keepSiteTitle && page_info.title.text"> - </span>
+        <span v-if="page_info.title.text">{{ page_info.title.text }}</span>
       </mdui-top-app-bar-title>
       <div style="flex-grow: 1"></div>
 
@@ -149,8 +162,9 @@ update_page()
           </mdui-menu-item>
         </mdui-menu>
       </mdui-dropdown>
-      <mdui-button-icon :icon="is_dark_mode?'dark_mode':'light_mode'" @click="change_dark_mode()"></mdui-button-icon>
+      <mdui-button-icon :icon="is_dark_mode ? 'dark_mode' : 'light_mode'" @click="change_dark_mode()"></mdui-button-icon>
       <mdui-button-icon icon="info" @click="alert_info"></mdui-button-icon>
+      <mdui-button-icon icon="logo_dev" @click="alert_dev"></mdui-button-icon>
 
     </mdui-top-app-bar>
     <div id="markdown-body">
