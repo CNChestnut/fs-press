@@ -14,22 +14,34 @@ import i18n from '@/i18n' // 引入i8n实例
 
 import HtmlDialog from '../components/html-dialog.vue'
 const dialog_about_is_open = ref(false)
-const dialog_dev_is_open = ref(false)
 
-const is_dark_mode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
-const markdown_css_dark = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-dark.min.css'
-const markdown_css = ref(is_dark_mode.value ? markdown_css_dark : markdown_css_light)
+const is_dark_mode = ref()
+if (sessionStorage.getItem('is_dark_mode') === 'true') {
+  is_dark_mode.value = true
+} else if (sessionStorage.getItem('is_dark_mode') === 'false') {
+  is_dark_mode.value = false
+} else {
+  is_dark_mode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+}
 if (is_dark_mode.value) {
   setTheme('dark')
 } else {
   setTheme('light')
 }
+const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
+const markdown_css_dark = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-dark.min.css'
+const markdown_css = ref(is_dark_mode.value ? markdown_css_dark : markdown_css_light)
+
+if (sessionStorage.getItem('language')) {
+  i18n.global.locale = sessionStorage.getItem('language')
+} else {
+  sessionStorage.setItem('language', i18n.global.locale)
+}
 
 const is_dev_mode = process.env.NODE_ENV === 'development'
 
 import server_config from '../app.config.json'
-import { setTheme, snackbar } from 'mdui';
+import { setTheme, snackbar, prompt } from 'mdui';
 var markdown_html = ref('')
 var page_info = ref()
 var site_info = ref(
@@ -40,11 +52,12 @@ var site_info = ref(
 )
 var fetch_path = ref('')
 var is_get = ref(false)// 是否已经获取到文档
-var server_host = ref(server_config.server_host)
-if(route.query.hasOwnProperty('server_host')) {
-  server_host.value = route.query.server_host
+const server_host = ref()
+if(sessionStorage.getItem('server_host')) {
+  server_host.value = sessionStorage.getItem('server_host')
+} else {
+  server_host.value = server_config.server_host
 }
-
 fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale)
   .then(response => response.json())
   .then(data => {
@@ -97,16 +110,19 @@ function back_home() {
   })
 }
 
-function alert_info() {
-  dialog_about_is_open.value = true
-}
-
-function alert_dev() {
-  dialog_dev_is_open.value = true
+function dev_dialog() {
+  prompt({
+    headline: "Change server host",
+    description: "Enter the server host you want to change to:",
+    confirmText: "OK",
+    cancelText: "Cancel",
+    onConfirm: (value) => { server_host.value = value; update_page();sessionStorage.setItem('server_host', value)}
+  })
 }
 
 function change_language(code) {
   i18n.global.locale = code
+  sessionStorage.setItem('language', code)
   update_page()
 }
 
@@ -119,6 +135,7 @@ function change_dark_mode() {
     markdown_css.value = markdown_css_light
     setTheme('light')
   }
+  sessionStorage.setItem('is_dark_mode', is_dark_mode.value)
 }
 
 update_page()
@@ -142,7 +159,7 @@ update_page()
       <div class="mdui-prose">
         <input type="text" v-model="server_host" placeholder="server_host">
       </div>
-      <mdui-button slot="action" @click="dialog_dev_is_open = false;update_page();">OK</mdui-button>
+      <mdui-button slot="action" @click="dialog_dev_is_open = false; update_page();">OK</mdui-button>
     </HtmlDialog>
 
     <mdui-top-app-bar style="position: relative;">
@@ -165,8 +182,8 @@ update_page()
         </mdui-menu>
       </mdui-dropdown>
       <mdui-button-icon :icon="is_dark_mode ? 'dark_mode' : 'light_mode'" @click="change_dark_mode()"></mdui-button-icon>
-      <mdui-button-icon icon="info" @click="alert_info"></mdui-button-icon>
-      <mdui-button-icon icon="logo_dev" @click="alert_dev"></mdui-button-icon>
+      <mdui-button-icon icon="info" @click="dialog_about_is_open = true"></mdui-button-icon>
+      <mdui-button-icon icon="logo_dev" @click="dev_dialog()" v-if="is_dev_mode"></mdui-button-icon>
 
     </mdui-top-app-bar>
     <div id="markdown-body">
