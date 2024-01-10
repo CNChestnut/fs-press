@@ -16,14 +16,27 @@ import HtmlDialog from '../components/html-dialog.vue'
 const dialog_about_is_open = ref(false)
 const dialog_dev_is_open = ref(false)
 
-const is_dark_mode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
-const markdown_css_dark = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-dark.min.css'
-const markdown_css = ref(is_dark_mode.value ? markdown_css_dark : markdown_css_light)
+const is_dark_mode = ref()
+if (sessionStorage.getItem('is_dark_mode') === 'true') {
+  is_dark_mode.value = true
+} else if (sessionStorage.getItem('is_dark_mode') === 'false') {
+  is_dark_mode.value = false
+} else {
+  is_dark_mode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+}
 if (is_dark_mode.value) {
   setTheme('dark')
 } else {
   setTheme('light')
+}
+const markdown_css_light = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-light.min.css'
+const markdown_css_dark = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown-dark.min.css'
+const markdown_css = ref(is_dark_mode.value ? markdown_css_dark : markdown_css_light)
+
+if(sessionStorage.getItem('language')) {
+  i18n.global.locale = sessionStorage.getItem('language')
+} else {
+  sessionStorage.setItem('language', i18n.global.locale)
 }
 
 const is_dev_mode = process.env.NODE_ENV === 'development'
@@ -41,7 +54,7 @@ var site_info = ref(
 var fetch_path = ref('')
 var is_get = ref(false)// 是否已经获取到文档
 var server_host = ref(server_config.server_host)
-if(route.query.hasOwnProperty('server_host')) {
+if (route.query.hasOwnProperty('server_host')) {
   server_host.value = route.query.server_host
 }
 
@@ -107,6 +120,7 @@ function alert_dev() {
 
 function change_language(code) {
   i18n.global.locale = code
+  sessionStorage.setItem('language', code)
   update_page()
 }
 
@@ -119,6 +133,7 @@ function change_dark_mode() {
     markdown_css.value = markdown_css_light
     setTheme('light')
   }
+  sessionStorage.setItem('is_dark_mode', is_dark_mode.value)
 }
 
 update_page()
@@ -142,7 +157,7 @@ update_page()
       <div class="mdui-prose">
         <input type="text" v-model="server_host" placeholder="server_host">
       </div>
-      <mdui-button slot="action" @click="dialog_dev_is_open = false;update_page();">OK</mdui-button>
+      <mdui-button slot="action" @click="dialog_dev_is_open = false; update_page();">OK</mdui-button>
     </HtmlDialog>
 
     <mdui-top-app-bar style="position: relative;">
