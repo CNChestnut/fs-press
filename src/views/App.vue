@@ -1,6 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 
+import 'mdui/components/button'
+import 'mdui/components/button-icon'
+import 'mdui/components/dialog'
+import 'mdui/components/dropdown'
+import 'mdui/components/menu'
+import 'mdui/components/top-app-bar'
+import 'mdui/components/top-app-bar-title'
+import 'mdui/components/circular-progress'
+
 import markdownIt from 'markdown-it'
 import markdownItMeta from 'markdown-it-meta'
 const md = new markdownIt()
@@ -40,7 +49,7 @@ if (sessionStorage.getItem('language')) {
 
 const is_dev_mode = process.env.NODE_ENV === 'development'
 
-import server_config from '../app.config.json'
+import server_config from '../../app.config.json'
 import { setTheme, snackbar, prompt } from 'mdui';
 var markdown_html = ref('')
 var page_info = ref()
@@ -56,12 +65,14 @@ const server_host = ref()
 if(sessionStorage.getItem('server_host')) {
   server_host.value = sessionStorage.getItem('server_host')
 } else {
-  server_host.value = server_config.server_host
+  server_host.value = server_config.server.host + ':' + server_config.server.port
 }
-fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale)
+console.log(server_host.value)
+fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale + '&host=' + location.hostname)
   .then(response => response.json())
   .then(data => {
     site_info.value = data
+    console.log(site_info.value)
     document.title = site_info.value.site_title
   })
 
@@ -70,7 +81,7 @@ function fetch_markdown(file_path, is_remote = false) {
   if (is_remote) {
     fetch_path.value = file_path
   } else {
-    fetch_path.value = server_host.value + '/?file=' + file_path + '/index.md&language=' + i18n.global.locale
+    fetch_path.value = server_host.value + '/?file=' + file_path + '/index.md&language=' + i18n.global.locale + '&host=' + location.hostname
   }
   console.log(fetch_path.value)
   fetch(fetch_path.value)

@@ -1,0 +1,22 @@
+{
+    "sites":[
+        {
+            "port":52110,
+            "name":"main",
+            "host":[
+                "127.0.0.1"
+            ]
+        },
+        {
+            "port":52111,
+            "name":"documentation",
+            "host":[
+                "localhost"
+            ]
+        }
+    ],
+    "server":{
+        "host":"http://localhost",
+        "port":62710
+    }
+}
