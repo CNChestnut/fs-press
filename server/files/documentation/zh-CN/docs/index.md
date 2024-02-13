@@ -6,7 +6,7 @@ title:
 
 ## 怎么部署
 
-[一键部署 Demo](./demo)
+[一键部署 Demo](/docs/demo/)
 
 ### 构建
 

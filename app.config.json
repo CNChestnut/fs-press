@@ -16,7 +16,7 @@
         }
     ],
     "server":{
-        "host":"http://localhost",
+        "host":"http://localhost:62710",
         "port":62710
     }
 }

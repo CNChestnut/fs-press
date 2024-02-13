@@ -65,7 +65,7 @@ const server_host = ref()
 if(sessionStorage.getItem('server_host')) {
   server_host.value = sessionStorage.getItem('server_host')
 } else {
-  server_host.value = server_config.server.host + ':' + server_config.server.port
+  server_host.value = server_config.server.host
 }
 console.log(server_host.value)
 fetch(server_host.value + '/?file=/info.json&language=' + i18n.global.locale + '&host=' + location.hostname)

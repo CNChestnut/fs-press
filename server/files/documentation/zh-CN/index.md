@@ -14,16 +14,12 @@ openNUT FS Press 是一个基于文件系统的动态网站生成器。
 
 本内容对应：
 
-- `FS-Press` : `2.0.0`
+- `FS-Press` : `2.0.1`
 
-- 文档
+- [FS-Press 文档](./docs)
 
-    [FS-Press 文档](./docs)
+- [FS-Press GitHub 代码库](https://github.com/CNChestnut/fs-press)
 
-- GitHub 代码库
+### 作者
 
-    [FS-Press](https://github.com/CNChestnut/fs-press)
-
-- 作者
-
-    [#.NUT Studio](https://sharpdotnut.top) / openNUT / [Chestnut](https://li-yufeng.top)
+[#.NUT Studio](https://sharpdotnut.top) / openNUT / [Chestnut](https://li-yufeng.top)
